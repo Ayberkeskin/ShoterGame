@@ -53,6 +53,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Fire"",
+                    ""type"": ""Button"",
+                    ""id"": ""a780fd8a-e7e2-4aa2-bb42-7ccb7062ce5b"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -132,6 +141,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""Holster"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""938aea7a-bdb0-47b4-9e74-b79db26a8ff3"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Fire"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -171,6 +191,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_PlayerController_Movement = m_PlayerController.FindAction("Movement", throwIfNotFound: true);
         m_PlayerController_Run = m_PlayerController.FindAction("Run", throwIfNotFound: true);
         m_PlayerController_Holster = m_PlayerController.FindAction("Holster", throwIfNotFound: true);
+        m_PlayerController_Fire = m_PlayerController.FindAction("Fire", throwIfNotFound: true);
         // CameraController
         m_CameraController = asset.FindActionMap("CameraController", throwIfNotFound: true);
         m_CameraController_Zoom = m_CameraController.FindAction("Zoom", throwIfNotFound: true);
@@ -238,6 +259,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerController_Movement;
     private readonly InputAction m_PlayerController_Run;
     private readonly InputAction m_PlayerController_Holster;
+    private readonly InputAction m_PlayerController_Fire;
     public struct PlayerControllerActions
     {
         private @PlayerInput m_Wrapper;
@@ -245,6 +267,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Movement => m_Wrapper.m_PlayerController_Movement;
         public InputAction @Run => m_Wrapper.m_PlayerController_Run;
         public InputAction @Holster => m_Wrapper.m_PlayerController_Holster;
+        public InputAction @Fire => m_Wrapper.m_PlayerController_Fire;
         public InputActionMap Get() { return m_Wrapper.m_PlayerController; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -263,6 +286,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Holster.started += instance.OnHolster;
             @Holster.performed += instance.OnHolster;
             @Holster.canceled += instance.OnHolster;
+            @Fire.started += instance.OnFire;
+            @Fire.performed += instance.OnFire;
+            @Fire.canceled += instance.OnFire;
         }
 
         private void UnregisterCallbacks(IPlayerControllerActions instance)
@@ -276,6 +302,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Holster.started -= instance.OnHolster;
             @Holster.performed -= instance.OnHolster;
             @Holster.canceled -= instance.OnHolster;
+            @Fire.started -= instance.OnFire;
+            @Fire.performed -= instance.OnFire;
+            @Fire.canceled -= instance.OnFire;
         }
 
         public void RemoveCallbacks(IPlayerControllerActions instance)
@@ -344,6 +373,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnMovement(InputAction.CallbackContext context);
         void OnRun(InputAction.CallbackContext context);
         void OnHolster(InputAction.CallbackContext context);
+        void OnFire(InputAction.CallbackContext context);
     }
     public interface ICameraControllerActions
     {

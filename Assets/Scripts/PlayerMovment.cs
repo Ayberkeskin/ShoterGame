@@ -11,6 +11,7 @@ public class PlayerMovment : MonoBehaviour
     #endregion
 
     #region Movment Variables
+    [Header("Player Movment Settings")]
     Vector2 movementInput;
     Vector3 currentMovement,toIso;
     bool isMovementPressed, isRunPressed;
@@ -18,6 +19,7 @@ public class PlayerMovment : MonoBehaviour
     #endregion
 
     #region Camera Zoom Variables
+    [Header("Camera Zoom Settings")]
     float zoomInput;
     [SerializeField] float zoomAmount;
     private float minZoom = 1f;
