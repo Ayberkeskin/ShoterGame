@@ -1,16 +1,28 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Cinemachine;
 
 public class PlayerMovment : MonoBehaviour
 {
+    #region Setup
+    Rigidbody rb;
+    [SerializeField] private CinemachineVirtualCamera virtualCamera;
     private PlayerInput playerInput;
-    [SerializeField] private float walkSpeed,runSpeed, turnspeed;
+    #endregion
 
+    #region Movment Variables
     Vector2 movementInput;
     Vector3 currentMovement,toIso;
-    bool isMovementPressed,isRunPressed;
+    bool isMovementPressed, isRunPressed;
+    [SerializeField] private float walkSpeed, runSpeed, turnspeed;
+    #endregion
 
-    Rigidbody rb;
+    #region Camera Zoom Variables
+    float zoomInput;
+    [SerializeField] float zoomAmount;
+    private float minZoom = 1f;
+    private float maxZoom = 6f;
+    #endregion
 
     private void Start()
     {
@@ -27,6 +39,8 @@ public class PlayerMovment : MonoBehaviour
         //RUN
         playerInput.PlayerController.Run.started += OnRun;
         playerInput.PlayerController.Run.canceled += OnRun;
+        //ZOOM
+        playerInput.CameraController.Zoom.performed += OnZoom;
     }
     private void FixedUpdate()
     {
@@ -36,6 +50,11 @@ public class PlayerMovment : MonoBehaviour
     {
         RotationProcess();
     }
+    private void LateUpdate()
+    {
+        ZoomProcess();
+    }
+
     //Player Move
     private void PlayerMove()
     {
@@ -60,6 +79,19 @@ public class PlayerMovment : MonoBehaviour
         Quaternion targetRotation = Quaternion.LookRotation(toIso, Vector3.up);
         transform.rotation = Quaternion.RotateTowards(transform.rotation,targetRotation,turnspeed*Time.deltaTime);
     }
+    //Zoom Camera
+    private void ZoomProcess()
+    {
+        if (zoomInput>0)
+        {
+            virtualCamera.m_Lens.OrthographicSize -= zoomAmount*Time.deltaTime;
+        }
+        else if (zoomInput<0)
+        {
+            virtualCamera.m_Lens.OrthographicSize += zoomAmount * Time.deltaTime;
+        }
+        virtualCamera.m_Lens.OrthographicSize = Mathf.Clamp(virtualCamera.m_Lens.OrthographicSize,minZoom,maxZoom);
+    }
 
     //WALK
     private void OnMove(InputAction.CallbackContext context)
@@ -75,14 +107,21 @@ public class PlayerMovment : MonoBehaviour
     {
         isRunPressed = context.ReadValueAsButton();
     }
+    //ZOOM
+    private void OnZoom(InputAction.CallbackContext context)
+    {
+        zoomInput = context.ReadValue<float>();
+    }
 
     private void OnEnable()
     {
         playerInput.PlayerController.Enable();
+        playerInput.CameraController.Enable();
     }
 
     private void OnDisable()
     {
         playerInput.PlayerController.Disable();
+        playerInput.CameraController.Disable();
     }
 }
