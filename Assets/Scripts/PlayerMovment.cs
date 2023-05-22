@@ -7,7 +7,7 @@ public class PlayerMovment : MonoBehaviour
     [SerializeField] private float walkSpeed,runSpeed, turnspeed;
 
     Vector2 movementInput;
-    Vector3 currentMovement;
+    Vector3 currentMovement,toIso;
     bool isMovementPressed,isRunPressed;
 
     Rigidbody rb;
@@ -41,18 +41,23 @@ public class PlayerMovment : MonoBehaviour
     {
         if (!isRunPressed)
         {
-            rb.MovePosition(transform.position + currentMovement.normalized * walkSpeed * Time.fixedDeltaTime);
+            rb.MovePosition(transform.position + toIso * currentMovement.normalized.magnitude * walkSpeed * Time.fixedDeltaTime);
         }
         else
         {
-            rb.MovePosition(transform.position + currentMovement.normalized * runSpeed * Time.fixedDeltaTime);
+            rb.MovePosition(transform.position + toIso * currentMovement.normalized.magnitude * runSpeed * Time.fixedDeltaTime);
         }
             }
     // Player Rotation
     private void RotationProcess()
     {
+        Quaternion isoAngle = Quaternion.Euler(0, 45, 0);
+        Matrix4x4 isoMatrix = Matrix4x4.Rotate(isoAngle);
+        toIso = isoMatrix.MultiplyPoint3x4(currentMovement);
+
+
         if (!isMovementPressed) return;
-        Quaternion targetRotation = Quaternion.LookRotation(currentMovement,Vector3.up);
+        Quaternion targetRotation = Quaternion.LookRotation(toIso, Vector3.up);
         transform.rotation = Quaternion.RotateTowards(transform.rotation,targetRotation,turnspeed*Time.deltaTime);
     }
 
