@@ -62,6 +62,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Jump"",
+                    ""type"": ""Button"",
+                    ""id"": ""f8265875-3b55-4726-839d-f390d009b866"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -134,7 +143,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""fa87ca93-e688-4b07-8c7e-3e53f0c6a359"",
-                    ""path"": ""<Keyboard>/space"",
+                    ""path"": ""<Keyboard>/ctrl"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -150,6 +159,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Fire"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""784e98ca-bf74-4391-800b-428fb54552c1"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jump"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -192,6 +212,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_PlayerController_Run = m_PlayerController.FindAction("Run", throwIfNotFound: true);
         m_PlayerController_Holster = m_PlayerController.FindAction("Holster", throwIfNotFound: true);
         m_PlayerController_Fire = m_PlayerController.FindAction("Fire", throwIfNotFound: true);
+        m_PlayerController_Jump = m_PlayerController.FindAction("Jump", throwIfNotFound: true);
         // CameraController
         m_CameraController = asset.FindActionMap("CameraController", throwIfNotFound: true);
         m_CameraController_Zoom = m_CameraController.FindAction("Zoom", throwIfNotFound: true);
@@ -260,6 +281,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerController_Run;
     private readonly InputAction m_PlayerController_Holster;
     private readonly InputAction m_PlayerController_Fire;
+    private readonly InputAction m_PlayerController_Jump;
     public struct PlayerControllerActions
     {
         private @PlayerInput m_Wrapper;
@@ -268,6 +290,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Run => m_Wrapper.m_PlayerController_Run;
         public InputAction @Holster => m_Wrapper.m_PlayerController_Holster;
         public InputAction @Fire => m_Wrapper.m_PlayerController_Fire;
+        public InputAction @Jump => m_Wrapper.m_PlayerController_Jump;
         public InputActionMap Get() { return m_Wrapper.m_PlayerController; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -289,6 +312,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Fire.started += instance.OnFire;
             @Fire.performed += instance.OnFire;
             @Fire.canceled += instance.OnFire;
+            @Jump.started += instance.OnJump;
+            @Jump.performed += instance.OnJump;
+            @Jump.canceled += instance.OnJump;
         }
 
         private void UnregisterCallbacks(IPlayerControllerActions instance)
@@ -305,6 +331,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Fire.started -= instance.OnFire;
             @Fire.performed -= instance.OnFire;
             @Fire.canceled -= instance.OnFire;
+            @Jump.started -= instance.OnJump;
+            @Jump.performed -= instance.OnJump;
+            @Jump.canceled -= instance.OnJump;
         }
 
         public void RemoveCallbacks(IPlayerControllerActions instance)
@@ -374,6 +403,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnRun(InputAction.CallbackContext context);
         void OnHolster(InputAction.CallbackContext context);
         void OnFire(InputAction.CallbackContext context);
+        void OnJump(InputAction.CallbackContext context);
     }
     public interface ICameraControllerActions
     {

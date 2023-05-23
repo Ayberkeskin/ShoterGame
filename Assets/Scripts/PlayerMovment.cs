@@ -18,6 +18,17 @@ public class PlayerMovment : MonoBehaviour
     [SerializeField] private float walkSpeed, runSpeed, turnspeed;
     #endregion
 
+    #region Jump Variables
+    [SerializeField] Transform groundCheck;
+    [SerializeField] LayerMask groundMask;
+    [SerializeField] float jumpAmount;
+    [SerializeField] Vector3 fallGravity;
+    Vector3 gravity = Physics.gravity;
+    Vector3 constantGravity = new Vector3(0, -9.81f, 0);
+    float radius = .1f;
+    bool isJumpPressed = false;
+    #endregion
+
     #region Camera Zoom Variables
     [Header("Camera Zoom Settings")]
     float zoomInput;
@@ -43,10 +54,15 @@ public class PlayerMovment : MonoBehaviour
         playerInput.PlayerController.Run.canceled += OnRun;
         //ZOOM
         playerInput.CameraController.Zoom.performed += OnZoom;
+
+        //JUMP
+        playerInput.PlayerController.Jump.started += OnJump;
+        playerInput.PlayerController.Jump.canceled += OnJump;
     }
     private void FixedUpdate()
     {
         PlayerMove();
+        JumpProcess();
     }
     private void Update()
     {
@@ -95,6 +111,21 @@ public class PlayerMovment : MonoBehaviour
         virtualCamera.m_Lens.OrthographicSize = Mathf.Clamp(virtualCamera.m_Lens.OrthographicSize,minZoom,maxZoom);
     }
 
+    // Jump Player
+
+    bool isGrounded()
+    {
+        return Physics.CheckSphere(groundCheck.position, radius, groundMask);
+    }
+    void JumpProcess()
+    {
+        if (isJumpPressed&&isGrounded())rb.AddForce(Vector3.up*jumpAmount,ForceMode.Impulse);
+
+        if (!isGrounded()) Physics.gravity = Vector3.Lerp(fallGravity, gravity, Time.deltaTime);
+        else Physics.gravity = Vector3.Lerp(Physics.gravity, constantGravity, Time.deltaTime);
+   
+    }
+
     //WALK
     private void OnMove(InputAction.CallbackContext context)
     {
@@ -113,6 +144,11 @@ public class PlayerMovment : MonoBehaviour
     private void OnZoom(InputAction.CallbackContext context)
     {
         zoomInput = context.ReadValue<float>();
+    }
+    //JUMP
+    private void OnJump(InputAction.CallbackContext context)
+    {
+        isJumpPressed = context.ReadValueAsButton();
     }
 
     private void OnEnable()
