@@ -1,5 +1,6 @@
 using UnityEngine.InputSystem;
 using UnityEngine;
+using System.Collections;
 
 public class PlayerAttack : MonoBehaviour
 {
@@ -23,8 +24,18 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] float returnSpeed;
     float nextFire;
     float delay;
-    Vector3 targetPos=new Vector3(0,0.3f,-.5f);
+    Vector3 targetPos=new Vector3(0,0.3f,-.2f);
     Vector3 basePos = new Vector3(0,0.3f, 0);
+    #endregion
+
+    #region Bullet
+    [SerializeField] Transform spawnLeftPos;
+    [SerializeField] Transform spawnRightPos;
+    [SerializeField] float range;
+    [SerializeField] LayerMask mask;
+    [SerializeField] TrailRenderer bullet;
+    [SerializeField] Vector3 randomiseBullet;
+
     #endregion
     private void Awake()
     {
@@ -77,8 +88,7 @@ public class PlayerAttack : MonoBehaviour
         if ((isHolsterPressed&&isFirePressed)&&Time.time>nextFire)
         {
             nextFire = Time.time + fireRate;
-            leftArm.transform.localPosition = Vector3.Lerp(leftArm.transform.localPosition, targetPos, recoilSpeed * Time.deltaTime);
-            Invoke("RightArmInvoke", delay);
+            StartCoroutine(Trigger());
         }
         else
         {
@@ -86,9 +96,54 @@ public class PlayerAttack : MonoBehaviour
             rightArm.transform.localPosition = Vector3.Lerp(rightArm.transform.localPosition, basePos, returnSpeed * Time.deltaTime);
         }
     }
-    void RightArmInvoke()
+    IEnumerator Trigger()
     {
+        Vector3 direction = BulletRecoil();
+        leftArm.transform.localPosition = Vector3.Lerp(leftArm.transform.localPosition, targetPos, recoilSpeed * Time.deltaTime);
+
+        if (Physics.Raycast(spawnLeftPos.position, direction, out RaycastHit hitLeft,range,mask))
+        {
+            TrailRenderer trailLeft = Instantiate(bullet, spawnLeftPos.position, Quaternion.identity);
+            StartCoroutine(SpawnTrail(trailLeft,hitLeft));
+        }
+
+        yield return new WaitForSeconds(delay);
+
+
         rightArm.transform.localPosition = Vector3.Lerp(rightArm.transform.localPosition, targetPos, recoilSpeed * Time.deltaTime);
+
+        if (Physics.Raycast(spawnRightPos.position, direction, out RaycastHit hitRight, range, mask))
+        {
+            TrailRenderer traiRight = Instantiate(bullet, spawnRightPos.position, Quaternion.identity);
+            StartCoroutine(SpawnTrail(traiRight, hitRight));
+        }
+    }
+
+    IEnumerator SpawnTrail(TrailRenderer trail,RaycastHit hit)
+    {
+        float time = 0;
+        Vector3 starPos = trail.transform.position;
+
+        while (time<1)
+        {
+            trail.transform.position = Vector3.Lerp(starPos, hit.point, time);
+            time += Time.deltaTime / trail.time;
+            yield return null;
+        }
+        trail.transform.position = hit.point;
+        Destroy(trail.gameObject, trail.time);
+    }
+
+    private Vector3 BulletRecoil()
+    {
+        Vector3 bulletDirectoin = transform.forward;
+
+        bulletDirectoin += new Vector3(
+            Random.Range(-randomiseBullet.x, randomiseBullet.x),
+            Random.Range(-randomiseBullet.y, randomiseBullet.y),
+            Random.Range(-randomiseBullet.z, randomiseBullet.z));
+        bulletDirectoin.Normalize();
+        return bulletDirectoin;
     }
 
     private void OnEnable()
