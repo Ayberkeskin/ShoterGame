@@ -4,13 +4,22 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    public float enemyMaxHealht = 100f;
+    [HideInInspector] public float enemyMaxHealht = 100f;
+    [SerializeField] float currentHealht;
+    [SerializeField] HealthBar healthBarScript;
 
+    private void Start()
+    {
+        currentHealht = enemyMaxHealht;
+        healthBarScript.HealthBarProgress(currentHealht,enemyMaxHealht);
+        healthBarScript.transform.gameObject.SetActive(false);
+    }
     public void TakeDamage(float damageAmount)
     {
-        enemyMaxHealht -= damageAmount;
+        currentHealht -= damageAmount;
+        healthBarScript.HealthBarProgress(currentHealht, enemyMaxHealht);
 
-        if (enemyMaxHealht<=0f)
+        if (currentHealht <= 0f)
         {
             KillEnemy();
         }

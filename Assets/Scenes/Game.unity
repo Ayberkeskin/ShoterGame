@@ -381,9 +381,9 @@ GameObject:
   - component: {fileID: 455583595}
   - component: {fileID: 455583594}
   - component: {fileID: 455583593}
+  - component: {fileID: 455583596}
   - component: {fileID: 455583592}
   - component: {fileID: 455583597}
-  - component: {fileID: 455583596}
   - component: {fileID: 455583598}
   m_Layer: 0
   m_Name: Player
@@ -537,7 +537,7 @@ MonoBehaviour:
   range: 400
   mask:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 136
   bullet: {fileID: 4081242271551686738, guid: fc1e68b4b2504cc488e92268a73c78bc, type: 3}
   randomiseBullet: {x: 0.1, y: 0.0001, z: 0.1}
 --- !u!1 &539110536
