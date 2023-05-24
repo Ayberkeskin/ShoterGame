@@ -8,12 +8,13 @@ public class PlayerMovment : MonoBehaviour
     Rigidbody rb;
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
     private PlayerInput playerInput;
+    PlayerAttack playerAttack;
     #endregion
 
     #region Movment Variables
     [Header("Player Movment Settings")]
     Vector2 movementInput;
-    Vector3 currentMovement,toIso;
+    Vector3 currentMovement, toIso;
     bool isMovementPressed, isRunPressed;
     [SerializeField] private float walkSpeed, runSpeed, turnspeed;
     #endregion
@@ -40,6 +41,7 @@ public class PlayerMovment : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        playerAttack = GetComponent<PlayerAttack>();
     }
 
     private void Awake()
@@ -84,7 +86,7 @@ public class PlayerMovment : MonoBehaviour
         {
             rb.MovePosition(transform.position + toIso * currentMovement.normalized.magnitude * runSpeed * Time.fixedDeltaTime);
         }
-            }
+    }
     // Player Rotation
     private void RotationProcess()
     {
@@ -92,23 +94,25 @@ public class PlayerMovment : MonoBehaviour
         Matrix4x4 isoMatrix = Matrix4x4.Rotate(isoAngle);
         toIso = isoMatrix.MultiplyPoint3x4(currentMovement);
 
+        if (playerAttack.getIssHolsterPressed()) return;
 
-        if (!isMovementPressed) return;
+
+        // if (!isMovementPressed) return;
         Quaternion targetRotation = Quaternion.LookRotation(toIso, Vector3.up);
-        transform.rotation = Quaternion.RotateTowards(transform.rotation,targetRotation,turnspeed*Time.deltaTime);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, turnspeed * Time.deltaTime);
     }
     //Zoom Camera
     private void ZoomProcess()
     {
-        if (zoomInput>0)
+        if (zoomInput > 0)
         {
-            virtualCamera.m_Lens.OrthographicSize -= zoomAmount*Time.deltaTime;
+            virtualCamera.m_Lens.OrthographicSize -= zoomAmount * Time.deltaTime;
         }
-        else if (zoomInput<0)
+        else if (zoomInput < 0)
         {
             virtualCamera.m_Lens.OrthographicSize += zoomAmount * Time.deltaTime;
         }
-        virtualCamera.m_Lens.OrthographicSize = Mathf.Clamp(virtualCamera.m_Lens.OrthographicSize,minZoom,maxZoom);
+        virtualCamera.m_Lens.OrthographicSize = Mathf.Clamp(virtualCamera.m_Lens.OrthographicSize, minZoom, maxZoom);
     }
 
     // Jump Player
@@ -119,12 +123,26 @@ public class PlayerMovment : MonoBehaviour
     }
     void JumpProcess()
     {
-        if (isJumpPressed&&isGrounded())rb.AddForce(Vector3.up*jumpAmount,ForceMode.Impulse);
+        if (isJumpPressed && isGrounded()) rb.AddForce(Vector3.up * jumpAmount, ForceMode.Impulse);
 
         if (!isGrounded()) Physics.gravity = Vector3.Lerp(fallGravity, gravity, Time.deltaTime);
         else Physics.gravity = Vector3.Lerp(Physics.gravity, constantGravity, Time.deltaTime);
-   
+
     }
+
+    //Seters run varaibles
+    public void setRunSpeed(float runSpeed)
+    {
+        this.runSpeed = runSpeed;
+    }
+
+    //Seters walk varaibles
+    public void setWalkSpeed(float walkSpeed)
+    {
+        this.walkSpeed = walkSpeed;
+    }
+
+
 
     //WALK
     private void OnMove(InputAction.CallbackContext context)

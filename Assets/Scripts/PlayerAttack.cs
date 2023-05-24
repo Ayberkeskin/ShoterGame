@@ -42,7 +42,7 @@ public class PlayerAttack : MonoBehaviour
     private void Awake()
     {
         //Input Reference
-        playerMovment = new PlayerMovment();
+        playerMovment = GetComponent<PlayerMovment>();
         playerInput = new PlayerInput();
         //Holster Listeners
         playerInput.PlayerController.Holster.started += OnHolster;
@@ -77,12 +77,16 @@ public class PlayerAttack : MonoBehaviour
         {
             leftArm.transform.localRotation = Quaternion.RotateTowards(leftArm.transform.localRotation, Quaternion.identity, holsterSpeed * 10 * Time.deltaTime);
             rightArm.transform.localRotation = Quaternion.RotateTowards(rightArm.transform.localRotation, Quaternion.identity, holsterSpeed * 10 * Time.deltaTime);
+            playerMovment.setRunSpeed(6f);
+            playerMovment.setWalkSpeed(4f);
         }
         else
         {
             Quaternion targetPos = Quaternion.Euler(90, 0, 0);
             leftArm.transform.localRotation = Quaternion.RotateTowards(leftArm.transform.localRotation, targetPos, holsterSpeed * 10 * Time.deltaTime);
             rightArm.transform.localRotation = Quaternion.RotateTowards(rightArm.transform.localRotation, targetPos, holsterSpeed * 10 * Time.deltaTime);
+            playerMovment.setRunSpeed(15f);
+            playerMovment.setWalkSpeed(10f);
         }
     }
     private void Shoot()
@@ -98,6 +102,14 @@ public class PlayerAttack : MonoBehaviour
             rightArm.transform.localPosition = Vector3.Lerp(rightArm.transform.localPosition, basePos, returnSpeed * Time.deltaTime);
         }
     }
+
+
+    // Gets  isHolsterPressed 
+    public bool getIssHolsterPressed()
+    {
+        return isHolsterPressed;
+    }
+
     IEnumerator Trigger()
     {
         Vector3 direction = BulletRecoil();
