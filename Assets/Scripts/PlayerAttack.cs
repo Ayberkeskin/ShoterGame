@@ -18,6 +18,7 @@ public class PlayerAttack : MonoBehaviour
     #endregion
 
     #region FÝre Variables
+    [SerializeField] private float bulletDamage;
     bool isFirePressed = false;
     [SerializeField] float fireRate;
     [SerializeField] float recoilSpeed;
@@ -37,6 +38,7 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] Vector3 randomiseBullet;
 
     #endregion
+
     private void Awake()
     {
         //Input Reference
@@ -129,6 +131,13 @@ public class PlayerAttack : MonoBehaviour
             trail.transform.position = Vector3.Lerp(starPos, hit.point, time);
             time += Time.deltaTime / trail.time;
             yield return null;
+        }
+
+        Enemy enemy = hit.transform.GetComponent<Enemy>();
+
+        if (enemy!=null)
+        {
+            enemy.TakeDamage(bulletDamage);
         }
         trail.transform.position = hit.point;
         Destroy(trail.gameObject, trail.time);
